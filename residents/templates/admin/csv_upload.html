@@ -1,0 +1,10 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>Upload Residents CSV</h1>
+<p>CSV must have header row: <strong>name, email, phone</strong></p>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="button">Upload</button>
+</form>
+{% endblock %}
