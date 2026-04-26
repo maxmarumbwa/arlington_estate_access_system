@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.urls import path
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import Resident, VisitorAccessRequest
+from .models import Resident, VisitorAccessRequest, BlacklistedAddress
 from .forms import CSVUploadForm
 
 
@@ -85,3 +85,9 @@ class VisitorAccessRequestAdmin(admin.ModelAdmin):
     list_filter = ("used_at", "expires_at")
     search_fields = ("access_code", "visitor_name", "resident__email")
     readonly_fields = ("access_code", "created_at", "expires_at", "used_at")
+
+
+@admin.register(BlacklistedAddress)
+class BlacklistedAddressAdmin(admin.ModelAdmin):
+    list_display = ("address", "reason", "created_at")
+    search_fields = ("address", "reason")

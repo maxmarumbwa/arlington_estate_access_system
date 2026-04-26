@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head><title>Gate Verification Test</title></head>
+<body>
+<h2>Enter Access Code</h2>
+<form method="post" action="{% url 'residents:verify_code' %}">
+  {% csrf_token %}
+  <input name="code" placeholder="Access Code">
+  <button type="submit">Verify</button>
+</form>
+</body>
+</html>

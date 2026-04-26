@@ -17,3 +17,18 @@ class AccessCodeRequestForm(forms.Form):
         if not Resident.objects.filter(email=email).exists():
             raise forms.ValidationError("No resident found with this email.")
         return email
+
+
+# Upload users via manual entry and csv file (admin-only)
+from django import forms
+from .models import Resident
+
+
+class ResidentForm(forms.ModelForm):
+    class Meta:
+        model = Resident
+        fields = ["name", "email", "phone", "is_active"]  # is_active visible to staff
+
+
+class CSVUploadForm(forms.Form):
+    csv_file = forms.FileField(label="CSV file (columns: name, email, phone)")
