@@ -3,14 +3,35 @@ import string
 from django.db import models
 from django.utils import timezone
 from datetime import timedelta
+from django.core.exceptions import ValidationError
+
+from django.core.exceptions import ValidationError
 
 
 class Resident(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20, unique=True)
-    address = models.TextField(blank=False, unique=True)
+    address = models.TextField(blank=True, null=True)  # unique=False (default)
     is_active = models.BooleanField(default=True)
+
+    def clean(self):
+        super().clean()
+        if self.address:
+            # Count existing residents with the same address (excluding this instance if editing)
+            count = Resident.objects.filter(address__iexact=self.address)
+            if self.pk:
+                count = count.exclude(pk=self.pk)
+            if count.count() >= 3:
+                raise ValidationError(
+                    {
+                        "address": f"This address already has 4 registered residents. Maximum is 4."
+                    }
+                )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()  # calls clean() before saving
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name

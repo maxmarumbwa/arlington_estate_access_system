@@ -1,12 +1,17 @@
-<!DOCTYPE html>
-<html>
-<head><title>Gate Verification Test</title></head>
-<body>
-<h2>Enter Access Code</h2>
-<form method="post" action="{% url 'residents:verify_code' %}">
-  {% csrf_token %}
-  <input name="code" placeholder="Access Code">
-  <button type="submit">Verify</button>
-</form>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Verify Code{% endblock %}
+
+{% block content %}
+<div class="text-center mt-5">
+    <h2>Enter Access Code</h2>
+
+    <div class="card p-4 shadow-sm mx-auto" style="max-width: 400px;">
+        <form method="post" action="{% url 'residents:verify_code' %}">
+            {% csrf_token %}
+            <input class="form-control mb-3" name="code" placeholder="Access Code">
+            <button class="btn btn-success w-100">Verify</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -27,7 +27,20 @@ from .models import Resident
 class ResidentForm(forms.ModelForm):
     class Meta:
         model = Resident
-        fields = ["name", "email", "phone", "is_active"]  # is_active visible to staff
+        fields = ["name", "email", "phone", "address", "is_active"]
+
+    def clean_address(self):
+        address = self.cleaned_data.get("address")
+        if address:
+            instance = self.instance
+            count = Resident.objects.filter(address__iexact=address)
+            if instance.pk:
+                count = count.exclude(pk=instance.pk)
+            if count.count() >= 4:
+                raise forms.ValidationError(
+                    "This address already has 4 residents. Cannot add more."
+                )
+        return address
 
 
 class CSVUploadForm(forms.Form):

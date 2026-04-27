@@ -116,29 +116,54 @@ def upload_residents_csv(request):
             data = csv_file.read().decode("utf-8")
             io_string = io.StringIO(data)
             reader = csv.reader(io_string)
-            header = next(reader)  # skip header row: name,email,phone
+            header = next(
+                reader
+            )  # skip header row: name, email, phone, address (address optional)
             created = 0
             errors = []
+
             for row_num, row in enumerate(reader, start=2):
                 if len(row) < 3:
                     errors.append(
-                        f"Row {row_num}: insufficient columns (need name, email, phone)"
+                        f"Row {row_num}: insufficient columns (need name, email, phone at minimum)"
                     )
                     continue
-                name, email, phone = row[0].strip(), row[1].strip(), row[2].strip()
-                try:
-                    obj, is_new = Resident.objects.get_or_create(
-                        email=email,
-                        defaults={"name": name, "phone": phone, "is_active": True},
+
+                name = row[0].strip()
+                email = row[1].strip()
+                phone = row[2].strip()
+                address = row[3].strip() if len(row) > 3 else ""
+
+                # Check if resident already exists
+                if Resident.objects.filter(email=email).exists():
+                    errors.append(
+                        f"Row {row_num}: resident with email {email} already exists"
                     )
-                    if is_new:
-                        created += 1
-                    else:
+                    continue
+
+                # Check address limit (max 4 per address)
+                if address:
+                    current_count = Resident.objects.filter(
+                        address__iexact=address
+                    ).count()
+                    if current_count >= 4:
                         errors.append(
-                            f"Row {row_num}: resident with email {email} already exists"
+                            f"Row {row_num}: address '{address}' already has 4 residents – cannot add more"
                         )
+                        continue
+
+                try:
+                    Resident.objects.create(
+                        name=name,
+                        email=email,
+                        phone=phone,
+                        address=address or None,  # empty string becomes NULL
+                        is_active=True,
+                    )
+                    created += 1
                 except Exception as e:
                     errors.append(f"Row {row_num}: {str(e)}")
+
             messages.success(request, f"{created} new residents added.")
             for err in errors:
                 messages.warning(request, err)

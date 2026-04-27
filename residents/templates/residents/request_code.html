@@ -1,15 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head><title>Request Access Code</title></head>
-<body>
-<h2>Request a Visitor Access Code</h2>
+{% extends "base.html" %}
+
+{% block title %}Request Code{% endblock %}
+
+{% block content %}
+<h2>Request Visitor Access Code</h2>
+
 {% if messages %}
-  <ul>{% for msg in messages %}<li>{{ msg }}</li>{% endfor %}</ul>
+    {% for msg in messages %}
+        <div class="alert alert-info">{{ msg }}</div>
+    {% endfor %}
 {% endif %}
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Request Code</button>
-</form>
-</body>
-</html>
+
+<div class="card p-4 shadow-sm">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-primary">Request Code</button>
+    </form>
+</div>
+{% endblock %}
